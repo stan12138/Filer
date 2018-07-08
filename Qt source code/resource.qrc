@@ -1,0 +1,20 @@
+<RCC>
+    <qresource prefix="/icon">
+        <file>images/about.svg</file>
+        <file>images/add.svg</file>
+        <file>images/close.svg</file>
+        <file>images/min.svg</file>
+        <file>images/option.svg</file>
+        <file>images/sure.svg</file>
+        <file>images/加.svg</file>
+        <file>images/确认.svg</file>
+        <file>images/选项.svg</file>
+        <file>images/最小化_1.svg</file>
+    </qresource>
+    <qresource prefix="/style">
+        <file>style.css</file>
+    </qresource>
+    <qresource prefix="/config">
+        <file>config.ini</file>
+    </qresource>
+</RCC>
