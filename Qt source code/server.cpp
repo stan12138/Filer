@@ -56,7 +56,7 @@ void Server::send_data(QString data, QString content_type)
         else
         {
             long long length = file.size();
-            int times = int(length/(1024*64))+1;
+            int times = int(length/(1024*512))+1;
 
             QStringList lis = data.split("/");
             QString name = lis.at(lis.size()-1);
@@ -83,10 +83,10 @@ void Server::send_data(QString data, QString content_type)
             QDataStream out_file(&file);
             for(int i=0; i<times; i++)
             {
-                QThread::msleep(5);
-                char *aaa = new char[1024*64];
+                //QThread::msleep(5);
+                char *aaa = new char[1024*512];
                 int s3;
-                s3 = out_file.readRawData(aaa, 1024*64);
+                s3 = out_file.readRawData(aaa, 1024*512);
                 read_length += s3;
                 QByteArray bbb = QByteArray(aaa, s3);
                 long long s2 = bbb.size();

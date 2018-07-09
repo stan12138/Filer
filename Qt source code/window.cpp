@@ -17,6 +17,8 @@
 #include <QFileDialog>
 #include <QDir>
 
+#include <QRect>
+
 Window::Window(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::Window)
@@ -25,6 +27,7 @@ Window::Window(QWidget *parent) :
     qRegisterMetaType<std::vector<Device_info> >("std::vector<Device_info>");
 
     setAcceptDrops(true);  //允许文件拖拽至界面，不仅需要设置dragenterevent和dropevent还要设置允许drop
+    talk_page->ui->message_box->setAcceptDrops(false);
 
     ui->setupUi(this);
 
@@ -100,6 +103,12 @@ Window::Window(QWidget *parent) :
 
     connect(talk_page->ui->send, &QPushButton::clicked, this, &Window::send_message_or_file);
     connect(talk_page->ui->choose_file, &QPushButton::clicked, this, &Window::choose_file);
+
+    QFile file(":/style/style.css");
+    file.open(QFile::ReadOnly);
+    QString stylesheet = tr(file.readAll());
+    qApp->setStyleSheet(stylesheet);
+    file.close();
 
 }
 
@@ -186,9 +195,18 @@ void Window::change_conf()
 
     delete conf_file;
 
-    emit set_ip_handler_info(ip_server_ip, my_id, ip_server_port, my_server_port);
 
-    stack->setCurrentIndex(2);
+
+    if(server_get_connect_success && client_get_connect_success)
+    {
+        //filename = "";
+        show_commu_page();
+    }
+    else
+    {
+        emit set_ip_handler_info(ip_server_ip, my_id, ip_server_port, my_server_port);
+        show_devices_page();
+    }
 }
 
 void Window::read_conf()
@@ -206,6 +224,19 @@ void Window::read_conf()
 }
 
 
+
+void Window::paintEvent(QPaintEvent *)
+{
+    QPainter painter(this);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.setBrush(QBrush(QColor(240,240,240,240)));
+    painter.setPen(Qt::transparent);
+    QRect rect1 = rect();
+    rect1.setWidth(rect1.width()-1);
+    rect1.setHeight(rect1.height()-1);
+    painter.drawRoundedRect(rect1, 6, 6);
+    //painter.fillRect(rect1, QColor(240,240,240,240));
+}
 
 void Window::mousePressEvent(QMouseEvent *e)
 {

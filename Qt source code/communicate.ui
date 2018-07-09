@@ -21,10 +21,10 @@
   <widget class="QPushButton" name="send">
    <property name="geometry">
     <rect>
-     <x>330</x>
+     <x>280</x>
      <y>330</y>
      <width>75</width>
-     <height>71</height>
+     <height>70</height>
     </rect>
    </property>
    <property name="text">
@@ -34,20 +34,20 @@
   <widget class="QTextEdit" name="message_box">
    <property name="geometry">
     <rect>
-     <x>80</x>
+     <x>20</x>
      <y>330</y>
-     <width>231</width>
-     <height>71</height>
+     <width>251</width>
+     <height>70</height>
     </rect>
    </property>
   </widget>
   <widget class="QTextEdit" name="show">
    <property name="geometry">
     <rect>
-     <x>33</x>
-     <y>30</y>
-     <width>361</width>
-     <height>211</height>
+     <x>20</x>
+     <y>20</y>
+     <width>390</width>
+     <height>221</height>
     </rect>
    </property>
    <property name="readOnly">
@@ -57,17 +57,17 @@
   <widget class="QPushButton" name="choose_file">
    <property name="geometry">
     <rect>
-     <x>20</x>
-     <y>340</y>
+     <x>370</x>
+     <y>330</y>
      <width>41</width>
-     <height>61</height>
+     <height>70</height>
     </rect>
    </property>
    <property name="text">
     <string/>
    </property>
    <property name="icon">
-    <iconset resource="resource.qrc">
+    <iconset>
      <normaloff>:/icon/images/加.svg</normaloff>:/icon/images/加.svg</iconset>
    </property>
    <property name="iconSize">
@@ -80,7 +80,7 @@
   <widget class="QProgressBar" name="progress">
    <property name="geometry">
     <rect>
-     <x>110</x>
+     <x>20</x>
      <y>260</y>
      <width>231</width>
      <height>23</height>
@@ -91,8 +91,6 @@
    </property>
   </widget>
  </widget>
- <resources>
-  <include location="resource.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

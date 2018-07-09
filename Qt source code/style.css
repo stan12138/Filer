@@ -1,3 +1,75 @@
-#Dialog2{
-	background-color: rgb(100,100,0);
+*{
+    font-family: "Microsoft YaHei UI";
+}
+
+#Window{
+    border-radius: 10px;
+}
+
+QPushButton{
+    border: 1px solid gray;
+    border-radius: 5px;
+}
+
+#option, #about, #min, #close{
+	border: 1px solid rgb(220, 220, 220);
+	border-radius: 2px;
+	width: 30px;
+	height: 30px;
+}
+
+
+#option:hover, #about:hover, #min:hover, #close:hover{
+	border: 1px solid rgb(220, 220, 220);
+	border-radius: 2px;
+	width: 30px;
+	height: 30px;
+	background-color: rgb(230, 230, 230);
+}
+
+#ID, #Port, #IP{
+	border: 1px solid rgb(220, 220, 220);
+	border-radius: 2px;
+}
+
+#cancle, #option_confirm{
+	border: 1px solid rgb(220, 220, 220);
+	border-radius: 2px;
+	width: 75px;
+	height: 30px;	
+}
+
+#cancle:hover, #option_confirm:hover{
+	border: 1px solid rgb(220, 220, 220);
+	border-radius: 2px;
+	width: 75px;
+	height: 30px;
+	background-color: rgb(230, 230, 230);	
+}
+
+#devices_list{
+	border: 1px solid rgb(220, 220, 220);
+	border-radius: 5px;
+	background-color: rgb(245, 245, 245);
+}
+
+#textEdit{
+	border: 1px solid rgb(240, 240, 240);
+	border-radius: 5px;
+	background-color: rgb(240, 240, 240);
+}
+
+#info_ok{
+	border: 1px solid rgb(220, 220, 220);
+	border-radius: 2px;
+	width: 75px;
+	height: 30px;
+}
+
+#info_ok:hover{
+	border: 1px solid rgb(220, 220, 220);
+	border-radius: 2px;
+	width: 75px;
+	height: 30px;
+	background-color: rgb(230, 230, 230);
 }

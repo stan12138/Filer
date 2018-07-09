@@ -10,6 +10,7 @@
         <file>images/确认.svg</file>
         <file>images/选项.svg</file>
         <file>images/最小化_1.svg</file>
+        <file>images/button_cancle.svg</file>
     </qresource>
     <qresource prefix="/style">
         <file>style.css</file>

@@ -5,6 +5,7 @@
 #include <QStackedWidget>
 #include <QListWidgetItem>
 #include <QString>
+#include <QPainter>
 
 #include <QDragEnterEvent>
 #include <QUrl>
@@ -114,6 +115,7 @@ private:
     void change_conf();   //修改配置
     void read_conf();    //读取配置
 
+    void paintEvent(QPaintEvent *);
     void mousePressEvent(QMouseEvent *e);     //以下三个均为鼠标拖动窗口服务
     void mouseReleaseEvent(QMouseEvent *e);
     void mouseMoveEvent(QMouseEvent *e);
