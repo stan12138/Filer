@@ -68,7 +68,7 @@
    <property name="geometry">
     <rect>
      <x>320</x>
-     <y>300</y>
+     <y>340</y>
      <width>75</width>
      <height>30</height>
     </rect>
@@ -108,7 +108,7 @@
    <property name="geometry">
     <rect>
      <x>220</x>
-     <y>300</y>
+     <y>340</y>
      <width>75</width>
      <height>30</height>
     </rect>
@@ -125,6 +125,29 @@
      <width>18</width>
      <height>18</height>
     </size>
+   </property>
+  </widget>
+  <widget class="QLabel" name="label_4">
+   <property name="geometry">
+    <rect>
+     <x>100</x>
+     <y>270</y>
+     <width>101</width>
+     <height>16</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>文件发送时延(ms)</string>
+   </property>
+  </widget>
+  <widget class="QLineEdit" name="delay">
+   <property name="geometry">
+    <rect>
+     <x>220</x>
+     <y>270</y>
+     <width>113</width>
+     <height>20</height>
+    </rect>
    </property>
   </widget>
  </widget>

@@ -67,6 +67,8 @@ Window::Window(QWidget *parent) :
     connect(option_page->ui->cancle, &QPushButton::clicked, this, &Window::check_status_for_about_page);
     connect(info_page->ui->info_ok, &QPushButton::clicked, this, &Window::check_status_for_about_page);
 
+    connect(talk_page->ui->restart, &QPushButton::clicked, this, &Window::restart);
+
     this->setMouseTracking(true);
     this->press = false;
     this->move_press = false;
@@ -84,7 +86,8 @@ Window::Window(QWidget *parent) :
     connect(server, &Server::connect_success, this, &Window::get_client);
     connect(this, &Window::send_data, server, &Server::send_data);
     connect(server, &Server::send_file_length_change, this, &Window::set_bar);
-    //connect(server, &Server::report_port, this, &Window::get_report_port);
+    connect(server, &Server::report_port, this, &Window::get_report_port);
+    connect(this, &Window::set_send_delay, server, &Server::set_delay);
     emit set_server_info(63834);
 
     ip_server = new IP_Handler;
@@ -96,8 +99,12 @@ Window::Window(QWidget *parent) :
     connect(this, &Window::make_ip_server_off_line, ip_server, &IP_Handler::off_line);
     connect(ip_server, &IP_Handler::send_devices, this, &Window::update_devices);
 
+
     read_conf();
-    emit set_ip_handler_info(ip_server_ip, my_id, ip_server_port, my_server_port);
+
+    emit set_send_delay(send_delay);
+    //emit set_ip_handler_info(ip_server_ip, my_id, ip_server_port, 0);
+    //设计失误，为了让服务器可以调整端口，只能预先发送为0的端口号，等等...对哦，可以等到接受服务器的端口汇报之后再启动ip服务哦
 
     connect(devices_page->ui->devices_list, SIGNAL(itemClicked(QListWidgetItem*)), this, SLOT(click_item(QListWidgetItem*)));
 
@@ -127,6 +134,7 @@ void Window::client_connect_to_server()
     {
         filename = "";
         show_commu_page();
+        emit make_ip_server_off_line();
     }
 }
 
@@ -148,13 +156,17 @@ void Window::get_client(QString ip)
     if(client_get_connect_success && server_get_connect_success)
     {
         filename = "";
+        all_devices.clear();
+        update_devices(all_devices);
         show_commu_page();
+        emit make_ip_server_off_line();
     }
 }
 
 void Window::get_report_port(int port)
 {
     my_server_port = port;
+    qDebug()<<"recive server port report";
     emit set_ip_handler_info(ip_server_ip, my_id, ip_server_port, my_server_port);
 }
 
@@ -183,28 +195,45 @@ void Window::show_commu_page()
 
 void Window::change_conf()
 {
-    ip_server_ip = option_page->ui->IP->text();
-    my_id = option_page->ui->ID->text();
-    ip_server_port = option_page->ui->Port->text().toInt();
+
+    int delay = option_page->ui->delay->text().toInt();
+
+    QString ip1 = option_page->ui->IP->text();;
+    QString id1 = option_page->ui->ID->text();
+    int port1 = option_page->ui->Port->text().toInt();
 
     QSettings *conf_file = new QSettings("./config.ini", QSettings::IniFormat);
-    conf_file->setValue("/Info/server-ip", ip_server_ip);
-    conf_file->setValue("/Info/ID", my_id);
-    conf_file->setValue("/Info/server-port", ip_server_port);
+    conf_file->setValue("/Info/server-ip", ip1);
+    conf_file->setValue("/Info/ID", id1);
+    conf_file->setValue("/Info/server-port", port1);
+    conf_file->setValue("/Info/delay", delay);
     conf_file->sync();
 
     delete conf_file;
 
-
+    if(!(delay==send_delay))
+    {
+        emit set_send_delay(delay);
+        send_delay = delay;
+    }
 
     if(server_get_connect_success && client_get_connect_success)
     {
         //filename = "";
+        all_devices.clear();
+        update_devices(all_devices);
         show_commu_page();
     }
     else
     {
-        emit set_ip_handler_info(ip_server_ip, my_id, ip_server_port, my_server_port);
+        if(!(ip1==ip_server_ip) || !(id1==my_id) || !(ip_server_port==port1))
+        {
+            ip_server_ip = ip1;
+            my_id = id1;
+            ip_server_port = port1;
+            emit set_ip_handler_info(ip_server_ip, my_id, ip_server_port, my_server_port);
+        }
+
         show_devices_page();
     }
 }
@@ -215,12 +244,15 @@ void Window::read_conf()
     ip_server_ip = conf_file->value("/Info/server-ip").toString();
     my_id = conf_file->value("/Info/ID").toString();
     ip_server_port = conf_file->value("/Info/server-port").toInt();
+    send_delay = conf_file->value("/Info/delay").toInt();
+    //qDebug()<<send_delay;
 
     delete conf_file;
 
     option_page->ui->IP->setText(ip_server_ip);
     option_page->ui->ID->setText(my_id);
     option_page->ui->Port->setText(QString::number(ip_server_port));
+    option_page->ui->delay->setText(QString::number(send_delay));
 }
 
 
@@ -332,8 +364,10 @@ void Window::click_item(QListWidgetItem *it)
     QString id = it->text();
     //qDebug() << id;
     Device_info one = find_partner(id, "id");
+    qDebug() << one.ID << one.IP << one.port;
     if(!(one.IP=="") && !client_alreay_connect_with_server)
     {
+        qDebug() << "going to make client....";
         make_client(one);
     }
 }
@@ -362,19 +396,29 @@ Device_info Window::find_partner(QString data, QString data_type)
 
 void Window::make_client(Device_info a)
 {
-    client = new Client;
-    QThread *thread3 = new QThread;
-    client->moveToThread(thread3);
-    thread3->start();
-    connect(this, &Window::set_client_info, client, &Client::set_info);
-    connect(this, &Window::make_client_off_line, client, &Client::off_line);
-    connect(client, &Client::get_data, this, &Window::get_data);
-    connect(client, &Client::connect_success, this, &Window::client_connect_to_server);
-    connect(client, &Client::recv_file_length_change, this, &Window::set_bar);
+    if(client==NULL)
+    {
+        client = new Client;
+        QThread *thread3 = new QThread;
+        client->moveToThread(thread3);
+        thread3->start();
+        connect(this, &Window::set_client_info, client, &Client::set_info);
+        connect(this, &Window::make_client_off_line, client, &Client::off_line);
+        connect(client, &Client::get_data, this, &Window::get_data);
+        connect(client, &Client::connect_success, this, &Window::client_connect_to_server);
+        connect(client, &Client::recv_file_length_change, this, &Window::set_bar);
 
-    emit set_client_info(a.IP, a.port);
+        emit set_client_info(a.IP, a.port);
 
-    client_alreay_connect_with_server = true;
+        client_alreay_connect_with_server = true;
+    }
+    else
+    {
+        emit set_client_info(a.IP, a.port);
+        qDebug() << "send client set info signal....";
+        client_alreay_connect_with_server = true;
+    }
+
 
     //qDebug()<< "already make client " << a.IP << a.port;
 
@@ -392,6 +436,8 @@ void Window::check_status_for_about_page()
     if(server_get_connect_success && client_get_connect_success)
     {
         filename = "";
+        all_devices.clear();
+        update_devices(all_devices);
         show_commu_page();
     }
     else show_devices_page();
@@ -423,4 +469,44 @@ void Window::choose_file()
     talk_page->ui->message_box->setText(send_file_message_flage);
 
     //emit send_data(filename, "file");
+}
+
+void Window::restart()
+{
+    //server->off_line();
+    //client->off_line();
+    emit make_client_off_line();
+    //emit make_server_off_line();
+    //free(server);
+    //free(client);
+    all_devices.clear();
+    update_devices(all_devices);
+
+    server_get_connect_success = false;
+    client_get_connect_success = false;
+    client_alreay_connect_with_server = false;
+    talk_page->ui->message_box->setText("");
+    talk_page->ui->show->setText("");
+
+    message_history = "";
+    filename = "";
+    emit set_server_info(63834);
+    emit set_send_delay(send_delay);
+
+    //server = new Server;
+    //QThread *thread2 = new QThread;
+    //server->moveToThread(thread2);
+   // thread2->start();
+    //connect(this, &Window::set_server_info, server, &Server::set_info);
+    //connect(this, &Window::make_server_off_line, server, &Server::off_line);
+    //connect(server, &Server::connect_success, this, &Window::get_client);
+    //connect(this, &Window::send_data, server, &Server::send_data);
+   // connect(server, &Server::send_file_length_change, this, &Window::set_bar);
+   // connect(server, &Server::report_port, this, &Window::get_report_port);
+   // connect(this, &Window::set_send_delay, server, &Server::set_delay);
+   // emit set_server_info(63834);
+    //emit set_send_delay(send_delay);
+
+    show_devices_page();
+
 }

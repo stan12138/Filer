@@ -58,4 +58,4 @@ FORMS += \
 RESOURCES += \
     resource.qrc
 
-RC_ICONS = Filer.ico
+RC_ICONS = filer4.ico

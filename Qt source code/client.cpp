@@ -22,9 +22,10 @@ void Client::set_info(QString ip, int port)
 {
     this->ip = ip;
     this->port = port;
-    //qDebug()<<"client get change info signal...";
+    qDebug()<<"client get change info signal..."<<this->ip<<this->port;
     off_line();
     start();
+    qDebug()<<"client already start...";
 }
 
 void Client::off_line()

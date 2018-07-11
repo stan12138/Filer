@@ -7,7 +7,15 @@ import logging.config
 #是不是应该采用OOP
 logging.config.fileConfig("stan.conf")
 log = logging.getLogger("second")
-
+def get_ip() :
+	s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
+	try:
+		s.connect(("baidu.com", 80))
+		ip = s.getsockname()[0]
+		s.close()
+	except :
+		ip = "N/A"
+	return ip
 
 
 class IP_Server :
@@ -51,6 +59,8 @@ class IP_Server :
 						self.log.error("error happen in %s , error information: %s"%(self.device[s][1], er))
 						print(er)
 						self.close_one_client(s)
+						pass
+					except Exception :
 						pass
 					else :
 						if data.decode('utf-8') == 'off-line' :
@@ -115,6 +125,6 @@ class IP_Server :
 			if message == b'' :
 				message = b'0'
 			client.send(message)
-
+print("Server ip is :", get_ip(), "Server Port is : 6000")
 Server = IP_Server()
 Server.run()

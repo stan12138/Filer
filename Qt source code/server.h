@@ -20,12 +20,14 @@ signals:
 public slots:
     void start();
     void set_info(int port);
+    void set_delay(int delay);
     void off_line();
 
     void send_data(QString data, QString content_type);
 
 private:
     int port=63834;
+    int send_delay=50;
 
     QTcpServer *server = NULL;
     QTcpSocket *client = NULL;

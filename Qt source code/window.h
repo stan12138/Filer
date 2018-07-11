@@ -58,6 +58,7 @@ signals:
     void set_server_info(int port);
     void make_server_off_line();
     void send_data(QString data, QString content_type);
+    void set_send_delay(int delay);
 
     void set_client_info(QString ip, int port);
     void make_client_off_line();
@@ -88,13 +89,14 @@ private:
 
     IP_Handler *ip_server;
     Server *server;
-    Client *client;
+    Client *client=NULL;
 
     bool client_alreay_connect_with_server = false;
 
     QString ip_server_ip;    //配置信息
     QString my_id;
     int ip_server_port;
+    int send_delay;
 
     int my_server_port=63834;
 
@@ -133,6 +135,8 @@ private:
 
     void send_message_or_file();
     void choose_file();
+
+    void restart();
 };
 
 #endif // WINDOW_H

@@ -119,8 +119,8 @@ class CommunicateServer :
 				self.show_lock.release()
 
 			elif self.send_type=='message' :
-
-				data = bytes('message\r\n'+str(len(self.message_content))+'\r\n'+self.message_content, 'utf-8')
+				d1 = bytes(self.message_content, 'utf-8')
+				data = bytes('message\r\n'+str(len(d1))+'\r\n', 'utf-8')+d1
 				self.send_server.send(data)
 
 				self.message_box.text = ''

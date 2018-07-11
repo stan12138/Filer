@@ -153,7 +153,8 @@ class CommunicateServer :
 			elif a=='stop' :
 				self.shutdown()
 			else :
-				data = bytes('message\r\n'+str(len(a))+'\r\n'+a, 'utf-8')
+				d1 = bytes(a, 'utf-8')
+				data = bytes('message\r\n'+str(len(d1))+'\r\n', 'utf-8')+d1
 				self.send_server.send(data)
 
 	def client_run(self) :

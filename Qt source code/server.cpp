@@ -27,6 +27,13 @@ void Server::set_info(int port)
     this->port = port;
     off_line();
     start();
+    qDebug()<<"server start......";
+}
+
+void Server::set_delay(int delay)
+{
+    send_delay = delay;
+    qDebug() << send_delay;
 }
 
 void Server::off_line()
@@ -80,23 +87,29 @@ void Server::send_data(QString data, QString content_type)
             long long read_length = 0;
 
 
-            QDataStream out_file(&file);
+            //QDataStream out_file(&file);
             for(int i=0; i<times; i++)
             {
-                //QThread::msleep(5);
-                char *aaa = new char[1024*512];
-                int s3;
-                s3 = out_file.readRawData(aaa, 1024*512);
-                read_length += s3;
-                QByteArray bbb = QByteArray(aaa, s3);
-                long long s2 = bbb.size();
-                long long s1 = client->write(QByteArray(bbb));
-                bool flage = client->flush();
+                QThread::msleep(send_delay);
+                //char *aaa = new char[1024*512];
+                //int s3;
+                //s3 = out_file.readRawData(aaa, 1024*512);
+                //read_length += s3;
+                //QByteArray bbb = QByteArray(aaa, s3);
+                QByteArray bbb = file.read(1024*512);
+
+                //long long s2 = bbb.size();
+                //long long s1 = client->write(QByteArray(bbb));
+                //bool flage = client->flush();
+                client->write(bbb);
+                client->flush();
                 //qDebug() << "read"  << s3 << s2;
                 //qDebug() << "send " << s1 << flage;
+                read_length += bbb.size();
                 double jindu =  (double)read_length/length;
                 int jin = (int) (jindu*100);
                 emit send_file_length_change(jin);
+                free(&bbb);
                 if(read_length>=length)
                 {
                    emit send_done();

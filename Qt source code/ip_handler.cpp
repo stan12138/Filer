@@ -22,7 +22,8 @@ void IP_Handler::start()
     connect(ip_server, &QTcpSocket::connected, this, &IP_Handler::connect_ok);
     connect(ip_server, &QTcpSocket::readyRead, this, &IP_Handler::recv_data);
     //qDebug() << "ip_handler.cpp  going to connect...";
-    ip_server->connectToHost(ip, 6000);
+    ip_server->connectToHost(ip, port);
+    report_flage = false;
 }
 
 void IP_Handler::set_info(QString ip, QString id, int port, int my_port)
@@ -61,11 +62,20 @@ void IP_Handler::connect_ok()
 
 void IP_Handler::report()
 {
-    QString message = id+"\n"+QString::number(my_server_port);
-    QByteArray d = message.toUtf8();
-    long long length = ip_server->write(d);
-    ip_server->flush();
-    //qDebug()<< "ip_handler.cpp  send message : " << message << "  return : " << length;
+
+    if(!(my_server_port==0))
+    {
+        QString message = id+"\n"+QString::number(my_server_port);
+        QByteArray d = message.toUtf8();
+        long long length = ip_server->write(d);
+        ip_server->flush();
+        //qDebug()<< "ip_handler.cpp  send message : " << message << "  return : " << length;
+    }
+    else
+    {
+        ;
+    }
+
 }
 
 void IP_Handler::recv_data()
