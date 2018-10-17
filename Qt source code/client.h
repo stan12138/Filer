@@ -20,6 +20,7 @@ signals:
 public slots:
     void start();
     void set_info(QString ip, int port);
+    void set_dir(QString dir);
     void off_line();
 
 private :
@@ -32,6 +33,8 @@ private :
     long long file_size;
 
     QTcpSocket *client = NULL;
+
+    QString dir_name = "inbox";
 
     void connect_ok();
     void recv_data();

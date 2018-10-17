@@ -61,6 +61,7 @@ signals:
     void set_send_delay(int delay);
 
     void set_client_info(QString ip, int port);
+    void set_client_dir(QString dir);
     void make_client_off_line();
 
 private:
@@ -108,6 +109,8 @@ private:
     QString filename = "";   //要传输的文件的名字
     QString send_file_message_flage = "";
 
+    QString dir_name = "inbox";
+
 
     void show_config_page();     //显示 设置     界面
     void show_about_page();      //显示 关于     界面
@@ -135,6 +138,7 @@ private:
 
     void send_message_or_file();
     void choose_file();
+    void choose_dir();
 
     void restart();
 };

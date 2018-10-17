@@ -27,9 +27,16 @@ QPushButton{
 	background-color: rgb(230, 230, 230);
 }
 
-#ID, #Port, #IP{
+#ID, #Port, #IP, #delay{
 	border: 1px solid rgb(220, 220, 220);
 	border-radius: 2px;
+}
+
+#choose_dir{
+        border: 1px solid rgb(220, 220, 220);
+        background-color: white;
+        border-radius: 2px;
+        text-align: left;
 }
 
 #cancle, #option_confirm{
@@ -73,3 +80,4 @@ QPushButton{
 	height: 30px;
 	background-color: rgb(230, 230, 230);
 }
+

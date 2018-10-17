@@ -28,6 +28,12 @@ void Client::set_info(QString ip, int port)
     qDebug()<<"client already start...";
 }
 
+void Client::set_dir(QString dir)
+{
+    this->dir_name = dir;
+    qDebug()<<"set client dir to -->"+dir_name;
+}
+
 void Client::off_line()
 {
     if(!client==NULL)
@@ -72,7 +78,7 @@ void Client::recv_data()
 
         emit get_data(filename, "file");
 
-        QFile file("inbox/"+filename);
+        QFile file(dir_name+"/"+filename);
         if(!file.open(QIODevice::WriteOnly))
         {
             //qDebug() << "client.cpp  "<<"can not open file";

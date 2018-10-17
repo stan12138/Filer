@@ -63,6 +63,7 @@ Window::Window(QWidget *parent) :
     connect(ui->min, &QPushButton::clicked, this, &Window::showMinimized);
     connect(ui->close, &QPushButton::clicked, QApplication::instance(), &QApplication::quit);
 
+    connect(option_page->ui->choose_dir, &QPushButton::clicked, this, &Window::choose_dir);
     connect(option_page->ui->option_confirm, &QPushButton::clicked, this, &Window::change_conf);
     connect(option_page->ui->cancle, &QPushButton::clicked, this, &Window::check_status_for_about_page);
     connect(info_page->ui->info_ok, &QPushButton::clicked, this, &Window::check_status_for_about_page);
@@ -207,6 +208,7 @@ void Window::change_conf()
     conf_file->setValue("/Info/ID", id1);
     conf_file->setValue("/Info/server-port", port1);
     conf_file->setValue("/Info/delay", delay);
+    conf_file->setValue("/Info/dir", dir_name);
     conf_file->sync();
 
     delete conf_file;
@@ -236,6 +238,8 @@ void Window::change_conf()
 
         show_devices_page();
     }
+
+    emit set_client_dir(dir_name);
 }
 
 void Window::read_conf()
@@ -245,10 +249,13 @@ void Window::read_conf()
     my_id = conf_file->value("/Info/ID").toString();
     ip_server_port = conf_file->value("/Info/server-port").toInt();
     send_delay = conf_file->value("/Info/delay").toInt();
+    dir_name = conf_file->value("/Info/dir").toString();
     //qDebug()<<send_delay;
 
     delete conf_file;
 
+
+    option_page->ui->choose_dir->setText(dir_name);
     option_page->ui->IP->setText(ip_server_ip);
     option_page->ui->ID->setText(my_id);
     option_page->ui->Port->setText(QString::number(ip_server_port));
@@ -403,18 +410,21 @@ void Window::make_client(Device_info a)
         client->moveToThread(thread3);
         thread3->start();
         connect(this, &Window::set_client_info, client, &Client::set_info);
+        connect(this, &Window::set_client_dir, client, &Client::set_dir);
         connect(this, &Window::make_client_off_line, client, &Client::off_line);
         connect(client, &Client::get_data, this, &Window::get_data);
         connect(client, &Client::connect_success, this, &Window::client_connect_to_server);
         connect(client, &Client::recv_file_length_change, this, &Window::set_bar);
 
         emit set_client_info(a.IP, a.port);
+        emit set_client_dir(dir_name);
 
         client_alreay_connect_with_server = true;
     }
     else
     {
         emit set_client_info(a.IP, a.port);
+        emit set_client_dir(dir_name);
         qDebug() << "send client set info signal....";
         client_alreay_connect_with_server = true;
     }
@@ -470,6 +480,27 @@ void Window::choose_file()
 
     //emit send_data(filename, "file");
 }
+
+void Window::choose_dir()
+{
+    QString dir = QFileDialog::getExistingDirectory(this, QString::fromLocal8Bit("Choose one dir"),"inbox");
+    if(dir!="")
+    {
+        dir_name = dir;
+        qDebug() << dir_name;
+        if(dir.length()>14)
+        {
+           option_page->ui->choose_dir->setText(dir_name.section("/", -1));
+        }
+        else
+        {
+            option_page->ui->choose_dir->setText(dir_name);
+        }
+
+    }
+
+}
+
 
 void Window::restart()
 {
