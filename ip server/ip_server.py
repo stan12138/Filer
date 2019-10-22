@@ -2,6 +2,9 @@ import socket
 import select
 import logging
 import logging.config
+from select_epoll import SEpoll
+import time
+import threading
 #是否要持久化数据？数据库？文件？抑或不持久化，直接存入字典，或者列表。需要一个时间戳，以保证在线设备是最新的
 
 #是不是应该采用OOP
@@ -33,6 +36,9 @@ class IP_Server :
 		self.device = {}
 
 		self.ip_record = []
+
+		self.send_lock = threading.Lock()
+
 		log.info("ip server start bind in port 6000")
 # 应该采用ID作为唯一的标识符，或者IP？
 	def run(self) :
