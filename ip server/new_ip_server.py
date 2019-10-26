@@ -67,9 +67,12 @@ class IP_Server :
         while True:
             read_list, erro_list = self.poll.poll()
 
+            
             for s in read_list :
                 if s is self.server :
+                    self.send_lock.acquire()
                     client, client_address = s.accept()
+                    self.send_lock.release()
                     if client in self.client_record :
                         pass
                     else :
@@ -81,9 +84,14 @@ class IP_Server :
                         self.log.info("IP: %s, port: %s is on-line"%client_address)
                 else :
                     try :
+                        self.send_lock.acquire()
                         data = s.recv(1024)
+                        self.send_lock.release()
+                        # 此处如果不加锁， 就会出现错误接收到b'0'的现象， 所以究竟是为什么会这样？ 
                     except Exception as er :
-                        self.log.info("!!!!!!recv data fail, IP: %s"%client_record[s][0]+er)
+
+                        self.log.info("!!!!!!recv data fail, IP: %s"%self.client_record[s][0]+str(er))
+
                         self.close_one_client(s)
                         self.tell_other_device()
                         
@@ -98,38 +106,52 @@ class IP_Server :
                             self.client_record[s][1] = time.time()
                             self.client_record[s][3] = True
                             s.send(b'get')
+                            print(data, "send get", time.time())
                             self.log.info("recv report from %s (%s), and send get to it already"%(self.client_record[s][0], self.client_record[s][1]))
                         else :
                             """
                             据测试发现,如果客户端直接关闭了链接, 服务器会收到b''
                             """
-                            self.log.info("!!!!data error, IP: %s, going to close"%client_record[s][0]+data)
+                            print("client close", data, time.time())
+                            self.log.info("!!!!data error, IP: %s, going to close"%self.client_record[s][0]+data.decode("utf-8"))
                             self.close_one_client(s)
                         
                         self.tell_other_device()
 
             for s in erro_list :
                 # print(s)
-                self.log.info("!!!! error list, IP: %s, going to close"%client_record[s][0])
+                print("client error")
+                self.log.info("!!!! error list, IP: %s, going to close"%self.client_record[s][0])
                 self.close_one_client(s)
                 self.tell_other_device()
+
+            
 
     def close_one_client(self, s) :
         # if s.fileno()!=-1 :
             # 现在我并不清楚为什么会出现-1的socket
-        self.send_lock.acquire()
+        print("begin close one client, want lock")
+        while True :
+            res = self.send_lock.acquire(timeout=1)
+            if res :
+                break
+            else :
+                # 现在还未知 为什么广播和这个一起竞争一把锁 会出现卡死
+                self.send_lock.release()
+        print("begin close one client, get lock")
         try :
             # print(self.client_record[s][1:], "off line")
             self.poll.unregister(s)
             self.client_record.pop(s)
             
         except Exception as er :
-            self.log.info("!!!! error when close client, IP:%s"%self.client_record[s][0]+er)
-            # print(er, list(self.client_record.keys()))
-
+            self.log.info("!!!! error when close client, IP:%s"%self.client_record[s][0]+str(er))
+            print(er, list(self.client_record.keys()))
+        print("close one client going to close")
         s.close()
         self.log.info("close one client success")
         self.send_lock.release()
+        print("close one client done")
 
 
 
@@ -139,7 +161,11 @@ class IP_Server :
             data = data.decode('utf-8')
             data = data.split('\n')
         except Exception as er :
-            self.log.error("%s send wrong format data, can't decode (%s) , error is %s , going to close"%(self.client_record[s][0], data, er))
+            print(data)
+            if type(data)==str :
+                self.log.error("%s send wrong format data, can't decode (%s) , error is %s , going to close"%(self.client_record[s][0], data, str(er)))
+            else :
+                self.log.error("%s send wrong format data, can't decode, error is %s , going to close"%(self.client_record[s][0], str(er)))
             #self.close_one_client(s)
             return False
         if len(data)==2 and len(data[0])<40 and len(data[1])<20 :
@@ -149,7 +175,9 @@ class IP_Server :
             return False
 
     def tell_other_device(self) :
+        print("begin tell other device, need lock", len(self.client_record))
         self.send_lock.acquire()
+        print("begin tell other device, get lock", len(self.client_record))
         if len(self.client_record) > 1 :
             message = b""
             keys = list(self.client_record.keys())
@@ -169,9 +197,22 @@ class IP_Server :
                     # print(new_message)
         elif len(self.client_record) == 1 :
             for client in self.client_record :
-                client.send(b'0')
+
+                if time.time()-self.client_record[client][1] > self.max_alive_time :
+                    self.log.info("client did not report for a long time, IP:%s, going close"%self.client_record[client][0])
+                    self.poll.unregister(client)
+                    self.client_record.pop(client)
+                    client.close()
+
+                elif self.client_record[client][3] :
+                    self.log.info("send client 0, IP:%s"%self.client_record[client][0])
+                    try :
+                        client.send(b'0')
+                    except :
+                        pass
 
         self.send_lock.release()
+        print("begin tell other device, lock release", len(self.client_record))
 
 print("Server ip is :", get_ip(), "Server Port is : 6000")
 Server = IP_Server()
