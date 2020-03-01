@@ -1,0 +1,27 @@
+<RCC>
+    <qresource prefix="/">
+        <file>main.qml</file>
+        <file>RoundRect.qml</file>
+        <file>DeviceItem.qml</file>
+        <file>SetPage.qml</file>
+        <file>ShadowRoundRect.qml</file>
+        <file>DevicePage.qml</file>
+        <file>TalkPage.qml</file>
+        <file>FileBoxLeft.qml</file>
+        <file>FileBoxRight.qml</file>
+        <file>MessageBoxLeft.qml</file>
+        <file>MessageBoxRight.qml</file>
+    </qresource>
+    <qresource prefix="/pic">
+        <file>Setting_click.png</file>
+        <file>Setting_normal.png</file>
+        <file>min.png</file>
+        <file>min_click.png</file>
+        <file>exit.png</file>
+        <file>exit_click.png</file>
+        <file>false.png</file>
+        <file>correct.png</file>
+        <file>File.png</file>
+        <file>File_small.png</file>
+    </qresource>
+</RCC>
