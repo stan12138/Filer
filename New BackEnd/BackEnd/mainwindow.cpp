@@ -11,7 +11,9 @@ MainWindow::MainWindow(QWidget *parent)
     , ui(new Ui::MainWindow)
 {
     ui->setupUi(this);
-    connect(ui->Btn, &QPushButton::clicked, this, &MainWindow::push);
+    connect(ui->Btn, &QPushButton::clicked, this, &MainWindow::push1);
+    connect(ui->Btn2, &QPushButton::clicked, this, &MainWindow::push2);
+    connect(ui->Btn3, &QPushButton::clicked, this, &MainWindow::push3);
 
     controller = new Controller;
     controller->set_ID("Stan-Qt");
@@ -28,6 +30,8 @@ MainWindow::MainWindow(QWidget *parent)
 
     connect(controller, &Controller::recv_message_signal, this, &MainWindow::recv_message_signal);
     connect(controller, &Controller::recv_file_signal, this, &MainWindow::recv_file_signal);
+    connect(controller, &Controller::send_file_signal, this, &MainWindow::send_file_signal);
+
 
 }
 
@@ -40,11 +44,30 @@ MainWindow::~MainWindow()
 }
 
 
-void MainWindow::push()
+void MainWindow::push1()
 {
-
+    for(int i=0; i<controller->connect_devices.size(); i++)
+    {
+        qDebug() << controller->connect_devices.at(i).IP << ":" << controller->connect_devices.at(i).port;
+    }
 }
 
+void MainWindow::push2()
+{
+    if(controller->connect_devices.size()>0)
+    {
+        controller->send_message("xixiixixix", controller->connect_devices.at(0).IP, controller->connect_devices.at(0).port);
+    }
+}
+
+void MainWindow::push3()
+{
+    if(controller->connect_devices.size()>0)
+    {
+        QString name = "/Users/hanyi02/Downloads/garageband-for-ipad-starter-guide-ios-11.ibooks";
+        controller->send_file(name, controller->connect_devices.at(0).IP, controller->connect_devices.at(0).port);
+    }
+}
 
 void MainWindow::connect_ipserver_success()
 {

@@ -10,7 +10,9 @@
 class IPClient : public Client
 {
     Q_OBJECT
+
 public:
+    ~IPClient();
     void set_info(QString my_ID, int my_port);
     void begin();
     void stop();

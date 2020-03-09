@@ -2,8 +2,10 @@
 
 Server::Server(QObject *parent) : QObject(parent)
 {
+
     server = new QTcpServer;
     connect(server, &QTcpServer::newConnection, this, &Server::accept);
+
 }
 
 Server::~Server()
@@ -16,6 +18,8 @@ Server::~Server()
         delete messengers.at(i);
     }
 }
+
+
 
 void Server::send(QMap<QString, QString> &the_header, const QByteArray &data, QString aim_ip, int aim_port)
 {
@@ -39,9 +43,16 @@ void Server::send(QMap<QString, QString> &the_header, const QByteArray &data, QS
     }
 }
 
-bool Server::generate_server(const QHostAddress &address, int port)
+int Server::generate_server()
 {
-    return server->listen(address, port);
+    while(!server->listen(my_address, init_port))
+    {
+        qDebug() << init_port;
+        init_port++;
+    }
+
+    return init_port;
+    // emit server_success(init_port);
 }
 
 

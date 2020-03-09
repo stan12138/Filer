@@ -24,7 +24,9 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
-    void push();
+    void push1();
+    void push2();
+    void push3();
 
 public slots:
     void connect_ipserver_success();

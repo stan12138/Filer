@@ -6,6 +6,17 @@ void IPClient::set_info(QString my_ID, int my_port)
     port = my_port;
 }
 
+IPClient::~IPClient()
+{
+    for(int i=0; i<messengers.size(); i++)
+    {
+        messengers.at(i)->close();
+        delete messengers.at(i);
+    }
+
+    delete timer;
+}
+
 void IPClient::begin()
 {
     if(!timer)
@@ -20,6 +31,7 @@ void IPClient::stop()
 {
     timer->stop();
     delete timer;
+    timer = nullptr;
 }
 
 

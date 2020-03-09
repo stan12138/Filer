@@ -67,6 +67,16 @@ void MyClient::stream_callback(QString filename, double size_mb, double process,
 
 void MyClient::send_file(QString filename, QString aim_ip, int aim_port)
 {
+    bool has_aim = false;
+    for(int i=0; i<messengers.length(); i++)
+    {
+        if(messengers.at(i)->IP==aim_ip && messengers.at(i)->port==aim_port)
+        {
+            has_aim = true;
+            break ;
+        }
+    }
+    if(!has_aim) return;
     QFile file(filename);
     if(file.open(QIODevice::ReadOnly))
     {

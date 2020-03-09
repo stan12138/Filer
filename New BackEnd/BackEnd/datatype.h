@@ -1,6 +1,7 @@
 #ifndef DATATYPE_H
 #define DATATYPE_H
 #include <QString>
+#include <QMetaType>
 
 struct Device
 {
@@ -9,4 +10,5 @@ struct Device
     int port;
 };
 
+Q_DECLARE_METATYPE(Device);
 #endif // DATATYPE_H

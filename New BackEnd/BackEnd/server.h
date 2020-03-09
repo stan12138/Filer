@@ -8,6 +8,7 @@
 #include <QMap>
 #include <QString>
 #include <QHostAddress>
+#include <QTimer>
 
 
 #include "messenger.h"
@@ -19,10 +20,12 @@ public:
     explicit Server(QObject *parent = nullptr);
     ~Server();
 
-    bool generate_server(const QHostAddress &address, int port);
+
     void send(QMap<QString, QString> &the_header, const QByteArray &data=NULL, QString aim_ip="", int aim_port=0);
 
     QList<Messenger *> messengers;
+
+
 
 public slots:
 
@@ -31,12 +34,15 @@ public slots:
     virtual void receive_callback(Messenger *messenger);
     virtual void stream_callback(QString filename, double size_mb, double process, QString the_ip, int the_port);
 
-signals:
+    int generate_server();
 
+
+signals:
 
 private:
     QTcpServer *server;
-
+    QHostAddress my_address=QHostAddress::AnyIPv4;
+    int init_port=63330;
     void accept();
 
 };

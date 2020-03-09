@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QString>
 #include <QList>
+#include <QThread>
 
 #include "ipclient.h"
 #include "myclient.h"
@@ -34,6 +35,7 @@ public slots:
     void server_connect_partner_fail(QString the_ip, int the_port);
     void server_partner_close(QString the_ip, int the_port);
 
+
     void client_connect_partner_success(QString the_ip, int the_port);
     void client_connect_partner_fail(QString the_ip, int the_port);
     void client_partner_close(QString the_ip, int the_port);
@@ -44,6 +46,7 @@ public slots:
     void send_file_process(QString filename, QString the_ip, int the_port, double process, double size_mb);
 
 signals:
+
     void connect_ipserver_success();
     void connect_ipserver_fail();
     void online_devices(QList<Device> devices);
@@ -61,7 +64,8 @@ private:
     MyClient *client = nullptr;
 
 
-    int my_port = 63330;
+    QString my_id = "";
+    int my_port = 0;
 };
 
 #endif // CONTROLLER_H

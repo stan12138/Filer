@@ -58,6 +58,16 @@ void MyServer::client_close_callback(Messenger *messenger)
 
 void MyServer::send_file(QString filename, QString aim_ip, int aim_port)
 {
+    bool has_aim = false;
+    for(int i=0; i<messengers.length(); i++)
+    {
+        if(messengers.at(i)->IP==aim_ip && messengers.at(i)->port==aim_port)
+        {
+            has_aim = true;
+            break ;
+        }
+    }
+    if(!has_aim) return;
     QFile file(filename);
     if(file.open(QIODevice::ReadOnly))
     {
@@ -74,7 +84,7 @@ void MyServer::send_file(QString filename, QString aim_ip, int aim_port)
         for(int i=0; i<times; i++)
         {
 
-            qDebug() << times << ": " << i;
+//            qDebug() << times << ": " << i;
             if(i==(times-1))
             {
                head["index"] = QString::number(-1);

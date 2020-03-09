@@ -13,7 +13,7 @@ class Client : public QObject
     Q_OBJECT
 public:
     explicit Client(QObject *parent = nullptr);
-    ~Client();
+    virtual ~Client();
 
     void send(QMap<QString, QString> &the_header, const QByteArray &data=NULL, QString aim_ip="", int aim_port=0);
     // 使用目标对象的IP和端口确定发送信息的目标，不指定为群发
