@@ -245,3 +245,32 @@ ios 上面, 关闭UI似乎并无法彻底关闭socket, 然后服务器根本收�
 2. 当一个类被移入线程之后，就不要再通过调用类的方法来使用功能了，应该全部使用信号和槽的机制，也就是说想要控制已经被转移进入子线程的类，最好选择信号与槽机制。
 3. 一个类的socket被创建于哪个线程，就只能在该线程中进行使用，跨线程调用就会报错。例如在主线程生成了一个socket，那么子线程不能使用。所以，应该把创建的socket也放入子线程，方法就是定义一个信号和槽，主线程发送信号，子线程接收信号，然后创建socket，这样这个socket就属于子线程了。这里重要的调试方法是查明当前执行的代码位于哪个线程，方法就是在代码中输出QThread::currentthreadid();
 4. 遇到的最后一个重大错误是：我将整个tcpserver类都移入了一个单独线程，自然这个类会自动处理accept任务，但是却报错了，错误信息类似Cannot create children for a parent that is in a different thread parent is QTCPServer。。。。。最后查明原因是，我习惯性使用了一个generate信号，让子线程创建tcpserver于是就出了问题，然后我把generate server放到了主线程执行就搞定了，具体细节，还不清楚，也许很容易理解吧，只是我现在很累………
+
+
+
+2020.3.10
+
+我决定暂时放弃了，今天在多线程后端测试中又发现了几个新问题，首先server接收连接之后，如果首次发送信息或者文件会报一次
+
+~~~
+QObject: Cannot create children for a parent that is in a different thread
+parent is QNativeSocketEngine.......
+~~~
+
+这样的错误，我实在是无法理解发送信息的时候试图创建了什么。
+
+但是，幸运的是，这个错误并没有影响任何功能的执行，似乎一切都好。也许可以不管了。
+
+第二个问题，自定义的Device结构体的IP和ID的次序弄反了，以至于解析的online devices的数据两者存反了，还有connected devices列表也一样，这个很快就被我修正了。
+
+第三个问题，这是今天下午测试接收文件功能的时候发现的问题，场景是：python tcp客户端连接到了Qt 的tcp server端，然后当客户端向服务端发送文件的时候(测试文件大小约310MB)，发送进度到达3%左右时，Qt产生了如下错误信息：
+
+~~~
+"127.0.0.1" : 54714 -- "garageband-for-ipad-starter-guide-ios-11.ibooks" ( 306.578 MB):  0.0212018
+ASSERT failure in QList<T>::at: "index out of range", file /Users/hanyi02/Documents/Qt_file/5.14.0/clang_64/lib/QtCore.framework/Headers/qlist.h, line 571
+16:52:33: 程序异常结束。
+~~~
+
+基本上这个错误可以稳定复现，但是我又在messenger的stream work(这个文件大小会触发stream work)发送文件接收进度信号之前加了一个输出，竟然又正常了………..很诡异，我实在是受够了。
+
+我真的要疯了，这几天里被多线程后端折磨疯了。我决定暂时放弃了。
